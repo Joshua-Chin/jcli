@@ -72,6 +72,8 @@ def match_literal(tokens):
         value = int(string)
     if name == 'FLOAT':
         value = float(string)
+    if name == 'BOOL':
+        value = bool(string)
     if name == 'STRING':
         value = str(string)
     if name == 'ID':

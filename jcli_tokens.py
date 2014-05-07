@@ -8,6 +8,7 @@ tokens = collections.OrderedDict([
 ('NEWLINE', '\n'),
 ('COMMENT', ';.*'),
 ('WHITESPACE', '\s+'),
+('BOOL', '#t|#f'),
 ('INTEGER', '-?[0-9]+'),
 ('FLOAT', '-?[0-9]+(\.[0-9]*)?'),
 ('ID', r'[^ {}()\[\]#;"\'\s]+'),
