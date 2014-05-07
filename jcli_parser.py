@@ -1,13 +1,13 @@
 import collections
-import tokenizer
+import jcli_tokenizer
 
-from datatypes import linked_list, sym, quote
+from jcli_datatypes import linked_list, sym, quote
 
 syntax = collections.namedtuple(
     'syntax', ['value', 'line_no', 'char_no'])
 
 def parse(string):
-    return parse_tokens(tokenizer.tokenize(string))
+    return parse_tokens(jcli_tokenizer.tokenize(string))
 
 def parse_tokens(tokens):
     match = match_exprs(tokens)
@@ -53,13 +53,13 @@ def match_compound(tokens):
                   tokens[0].char_no), index + 1
     
 def match_quote(tokens):
-    if len(tokens) <= 2:
+    if len(tokens) < 2:
         return None
     if tokens[0].name != 'QUOTE':
         return None
     match = match_expr(tokens[1:])
     if match is not None:
-        return quote(match[0]), match[1] + 1
+        return quote(syntax_to_list(match[0])), match[1] + 1
 
 def match_literal(tokens):
     if len(tokens) == 0:
@@ -90,8 +90,14 @@ class ParserError(Exception):
         t = self.token
         return ("Syntax error at line %s, char %s: %s"%(
             t.line_no, t.char_no, t.string))
-    
+
+def syntax_to_list(ast):
+    v = ast.value
+    if isinstance(ast, linked_list):
+        return linked_list(map(syntax_to_list, ast))
+    return v
+
 if __name__ == '__main__':
-    import tokenizer
-    tokens = tokenizer.tokenize("'()")
+    import jcli_tokenizer
+    tokens = jcli_tokenizer.tokenize("'1")
     print(parse_tokens(tokens))

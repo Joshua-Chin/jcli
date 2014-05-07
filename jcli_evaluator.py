@@ -1,14 +1,15 @@
-from datatypes import linked_list, sym, quote, closure, car, cdr, cons, null
+from jcli_datatypes import linked_list, sym, quote, closure, car, cdr, cons, null
 
-import tokenizer
-import parser
+import jcli_tokenizer
+import jcli_parser
 import operator
 
 jcli_globals = {
     sym('+'): operator.add,
     sym('-'): operator.sub,
     sym('*'): operator.mul,
-    sym('/'): operator.div,
+ #   sym('/'): operator.div,
+    sym('='): operator.eq,
     sym('or'): lambda x,y: x or y,
     sym('and'): lambda x,y: x and y,
     sym('not'): lambda x: not x,
@@ -17,13 +18,15 @@ jcli_globals = {
     sym('cdr'): cdr,}
 
 def eval(string):
-    asts = parser.parse(string)
+    asts = jcli_parser.parse(string)
     return list(map(lambda ast: eval_ast(ast, jcli_globals), asts))
 
 
 def eval_ast(ast, env):
-    while isinstance(ast, parser.syntax):
+    while isinstance(ast, jcli_parser.syntax):
         ast = simplify(ast.value, env)
+    if isinstance(ast, quote):
+        return ast.value
     return ast
     
 def simplify(expr, env):
@@ -48,7 +51,7 @@ def simplify(expr, env):
             else:
                 return expr[3]
         elif f == sym('quote'):
-            return quote(expr[1])
+            return quote(jcli_parser.syntax_to_list(expr[1]))
         elif f == sym('begin'):
             out = None
             for sub_expr in cdr(expr):
@@ -67,4 +70,5 @@ def apply(function, iterable):
     return function(*list(iterable))
 
 if __name__ == '__main__':
-    print(eval("((lambda (x) (+ x 1)) 1)"))
+    while True:
+        print(eval(input('rkt>')))

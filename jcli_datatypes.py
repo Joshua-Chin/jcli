@@ -28,7 +28,7 @@ class linked_list(tuple):
 
     def __repr__(self):
         if self is null:
-            return '()'
+            return "'()"
         return "'("+" ".join(map(str, self)) + ')'
         
 
@@ -43,3 +43,40 @@ null = tuple.__new__(linked_list, ())
 
 def cons(car, cdr):    
     return tuple.__new__(linked_list, (car, cdr))
+
+class sym(str):
+
+    index = 0
+    instances = {}
+
+    def __new__(cls, string):
+        string = str(string)
+        if string in sym.instances:
+            return sym.instances[string]
+        instance = str.__new__(sym, string)
+        instance.__hash = sym.index
+        sym.index += 1
+        sym.instances[string] = instance
+        return instance
+
+    def __eq__(self, other):
+        return hash(self) == hash(other) and isinstance(other, sym)
+
+    def __hash__(self):
+        return self.__hash
+
+    def __repr__(self):
+        return '<sym:'+str.__repr__(self)+'>'
+
+class quote(object):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return "'" + str(self.value)
+
+    def __repr__(self):
+        return '<quote:'+repr(self.value)+'>'
+
+closure = dict
