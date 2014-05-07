@@ -1,6 +1,8 @@
 import collections
 import tokenizer
 
+from datatypes import linked_list, sym, quote
+
 syntax = collections.namedtuple(
     'syntax', ['value', 'line_no', 'char_no'])
 
@@ -31,7 +33,7 @@ def match_expr(tokens):
     return out
 
 def match_compound(tokens):
-    if len(tokens) <= 2:
+    if len(tokens) <= 1:
         return None
     if tokens[0].name != 'LPAREN':
         return None
@@ -45,6 +47,7 @@ def match_compound(tokens):
         index += match[1]
     if tokens[index].name != 'RPAREN':
         return None
+    output = linked_list(output)
     return syntax(output,
                   tokens[0].line_no,
                   tokens[0].char_no), index + 1
@@ -76,12 +79,6 @@ def match_literal(tokens):
     if value is not None:
         return syntax(value, token.line_no, token.char_no), 1
 
-def sym(string):
-    return 'symbol:'+string
-
-def quote(value):
-    return value
-
 class ParserError(Exception):
 
     def __init__(self, token):
@@ -94,5 +91,5 @@ class ParserError(Exception):
     
 if __name__ == '__main__':
     import tokenizer
-    tokens = tokenizer.tokenize("'(Hello World) 12 45 (+ 1 2 ())")
+    tokens = tokenizer.tokenize("'()")
     print(parse_tokens(tokens))
