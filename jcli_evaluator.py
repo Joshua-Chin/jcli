@@ -19,12 +19,19 @@ jcli_globals = {
 
 def eval(string):
     asts = jcli_parser.parse(string)
-    return list(map(lambda ast: eval_ast(ast, jcli_globals), asts))
+    return list(map(lambda ast: eval_ast(ast, closure(jcli_globals)), asts))
 
 
 def eval_ast(ast, env):
-    while isinstance(ast, jcli_parser.syntax):
-        ast = simplify(ast.value, env)
+    try:
+        while isinstance(ast, jcli_parser.syntax):
+            ast = simplify(ast.value, env)
+    except EvaluatorError:
+        raise
+    except Exception as e:
+        raise EvaluatorError(
+            'line %s, char %s: %s'
+            %(ast.line_no, ast.char_no, str(e)))
     if isinstance(ast, quote):
         return ast.value
     return ast
@@ -64,10 +71,12 @@ def simplify(expr, env):
     else:
         return expr
 
-
+class EvaluatorError(Exception):
+    pass
 
 def apply(function, iterable):
     return function(*list(iterable))
+
 
 if __name__ == '__main__':
     while True:
