@@ -59,7 +59,10 @@ def match_quote(tokens):
         return None
     match = match_expr(tokens[1:])
     if match is not None:
-        return quote(syntax_to_list(match[0])), match[1] + 1
+        t = tokens[0]
+        quote = syntax(sym('quote'), t.line_no, t.char_no)
+        expr = linked_list([quote, match[0]])
+        return syntax(expr, t.line_no, t.char_no), match[1] + 1
 
 def match_literal(tokens):
     if len(tokens) == 0:
@@ -93,8 +96,8 @@ class ParserError(Exception):
 
 def syntax_to_list(ast):
     v = ast.value
-    if isinstance(ast, linked_list):
-        return linked_list(map(syntax_to_list, ast))
+    if isinstance(v, linked_list):
+        return linked_list(list(map(syntax_to_list, v)))
     return v
 
 if __name__ == '__main__':

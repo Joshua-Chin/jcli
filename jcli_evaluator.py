@@ -13,13 +13,15 @@ jcli_globals = {
     sym('or'): lambda x,y: x or y,
     sym('and'): lambda x,y: x and y,
     sym('not'): lambda x: not x,
-    sym('cons'): cons,
-    sym('car'): car,
-    sym('cdr'): cdr,}
+    sym('cons'): lambda x,y: cons(x, y.value),
+    sym('car'): lambda x: car(x.value),
+    sym('cdr'): lambda x: cdr(x.value),}
 
-def eval(string):
+def eval(string, builtins=None):
+    if builtins is None:
+        builtins = closure(jcli_globals)
     asts = jcli_parser.parse(string)
-    return list(map(lambda ast: eval_ast(ast, closure(jcli_globals)), asts))
+    return list(map(lambda ast: eval_ast(ast, builtins), asts))
 
 
 def eval_ast(ast, env):
@@ -32,32 +34,45 @@ def eval_ast(ast, env):
         raise EvaluatorError(
             'line %s, char %s: %s'
             %(ast.line_no, ast.char_no, str(e)))
-    if isinstance(ast, quote):
-        return ast.value
     return ast
     
 def simplify(expr, env):
     if isinstance(expr, sym):
-        return env[expr]
+        try:
+            return env[expr]
+        except KeyError:
+            raise NameError("symbol %s is not defined"%(expr,))
     elif isinstance(expr, linked_list):
         f = expr[0].value
         if f == sym('define'):
+            if len(expr) != 3:
+                raise SyntaxError("bad syntax in define")
             env[expr[1].value] = eval_ast(expr[2], env)
         elif f == sym('lambda'):
+            if len(expr) != 3:
+                raise SyntaxError("bad syntax in lambda")                
             arg_names = expr[1].value
             body = expr[2]
             def function(*args):
                 c = closure(env)
+                if len(arg_names) != len(args):
+                    raise TypeError(
+                        'function expected %s arguments, got %s'
+                        %(len(arg_names), len(args)))
                 for arg_name, arg in zip(arg_names, args):
                     c[arg_name.value] = arg
                     return eval_ast(body, c)
             return function
         elif f == sym('if'):
+            if len(expr) != 4:
+                raise SyntaxError("bad syntax in if")   
             if eval_ast(expr[1], env):
                 return expr[2]
             else:
                 return expr[3]
         elif f == sym('quote'):
+            if len(expr) != 2:
+                raise SyntaxError("bad syntax in quote")
             return quote(jcli_parser.syntax_to_list(expr[1]))
         elif f == sym('begin'):
             out = None
@@ -79,5 +94,7 @@ def apply(function, iterable):
 
 
 if __name__ == '__main__':
+    builtins = closure(jcli_globals)
     while True:
-        print(eval(input('rkt>')))
+        for result in eval(input('rkt> '), builtins):
+            print(result)

@@ -28,8 +28,8 @@ class linked_list(tuple):
 
     def __repr__(self):
         if self is null:
-            return "'()"
-        return "'("+" ".join(map(str, self)) + ')'
+            return "()"
+        return "("+" ".join(map(str, self)) + ')'
         
 
 
@@ -69,6 +69,13 @@ class sym(str):
         return '<sym:'+str.__repr__(self)+'>'
 
 class quote(object):
+
+    def __new__(cls, value):
+        if isinstance(value, (str, int, float)):
+            return value
+        out = object.__new__(cls)
+        out.__init__(value)
+        return out
 
     def __init__(self, value):
         self.value = value
