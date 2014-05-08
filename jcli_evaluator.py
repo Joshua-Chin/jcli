@@ -17,11 +17,15 @@ jcli_globals = {
     sym('car'): lambda x: car(x.value),
     sym('cdr'): lambda x: cdr(x.value),}
 
-def eval(string, builtins=None):
+def eval(string, bindings=None, builtins=None):
     if builtins is None:
-        builtins = closure(jcli_globals)
+        builtins = jcli_globals
+    if bindings is None:
+        bindings = closure(builtins)
+    else:
+        bindings.update(builtins)
     asts = jcli_parser.parse(string)
-    return list(map(lambda ast: eval_ast(ast, builtins), asts))
+    return list(map(lambda ast: eval_ast(ast, bindings), asts))
 
 
 def eval_ast(ast, env):
