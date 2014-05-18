@@ -5,6 +5,10 @@ import jcli_parser
 import operator
 
 jcli_globals = {
+    sym('eval'): lambda x: (
+        eval_ast(x.value, closure(jcli_globals))
+        if isinstance(x, quote)
+        else x),
     sym('+'): operator.add,
     sym('-'): operator.sub,
     sym('*'): operator.mul,
@@ -30,15 +34,22 @@ def eval(string, bindings=None, builtins=None):
 
 def eval_ast(ast, env):
     try:
-        while isinstance(ast, jcli_parser.syntax):
-            ast = simplify(ast.value, env)
+        while isinstance(ast, (jcli_parser.syntax, sym, linked_list, hack)):
+            if isinstance(ast, jcli_parser.syntax):
+                ast = simplify(ast.value, env)
+            else:
+                ast = simplify(ast, env);
     except EvaluatorError:
         raise
     except Exception as e:
-        raise EvaluatorError(
-            'line %s, char %s: %s'
-            %(ast.line_no, ast.char_no, str(e)))
+        if isinstance(ast, jcli_parser.syntax):
+            raise EvaluatorError(
+                'line %s, char %s: %s'
+                %(ast.line_no, ast.char_no, str(e)))
+        raise
     return ast
+
+class hack(tuple):pass
     
 def simplify(expr, env):
     if isinstance(expr, sym):
@@ -46,8 +57,12 @@ def simplify(expr, env):
             return env[expr]
         except KeyError:
             raise NameError("symbol %s is not defined"%(expr,))
+    elif isinstance(expr, hack):
+        return simplify(expr[0], expr[1])
     elif isinstance(expr, linked_list):
-        f = expr[0].value
+        f = expr[0]
+        if isinstance(f, jcli_parser.syntax):
+            f=f.value
         if f == sym('define'):
             if len(expr) != 3:
                 raise SyntaxError("bad syntax in define")
@@ -65,15 +80,16 @@ def simplify(expr, env):
                         %(len(arg_names), len(args)))
                 for arg_name, arg in zip(arg_names, args):
                     c[arg_name.value] = arg
-                    return eval_ast(body, c)
+                out = hack((body.value, c))
+                return out
             return function
         elif f == sym('if'):
             if len(expr) != 4:
-                raise SyntaxError("bad syntax in if")   
+                raise SyntaxError("bad syntax in if")
             if eval_ast(expr[1], env):
-                return expr[2]
+                return hack((expr[2].value, env))
             else:
-                return expr[3]
+                return hack((expr[3].value, env))
         elif f == sym('quote'):
             if len(expr) != 2:
                 raise SyntaxError("bad syntax in quote")
@@ -99,6 +115,10 @@ def apply(function, iterable):
 
 if __name__ == '__main__':
     builtins = closure(jcli_globals)
+    eval("""
+(define recursion-test
+(lambda (x)
+(if (= x 0) 0 (recursion-test (- x 1)))))""", builtins)
     while True:
         for result in eval(input('rkt> '), builtins):
             print(result)

@@ -71,7 +71,7 @@ class sym(str):
 class quote(object):
 
     def __new__(cls, value):
-        if isinstance(value, (str, int, float)):
+        if isinstance(value, (str, int, float, bool)):
             return value
         out = object.__new__(cls)
         out.__init__(value)
@@ -86,4 +86,21 @@ class quote(object):
     def __repr__(self):
         return '<quote:'+repr(self.value)+'>'
 
-closure = dict
+class macro(object):
+
+    def __init__(self, value):
+        self.value = value
+
+class closure(dict):
+
+    def __init__(self, outer = None):
+        super().__init__()
+        self.outer = outer
+
+    def __getitem__(self, key):
+        if key in self:
+            return dict.__getitem__(self, key)
+        try:
+            return self.outer[key]
+        except AttributeError:
+            raise KeyError
