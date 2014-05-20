@@ -10,11 +10,8 @@ def assemble(assembly):
         if (instr[0] == Bytecode.GOTO or
             instr[0] == Bytecode.BRANCH):
             assembly[index] = (instr[0], labels[instr[1]])
-        elif instr[0] == Bytecode.LAMBDA:
-            assembly[index] =(
-                instr[0],
-                (labels[instr[1][0]],
-                 instr[1][1]))
+        if instr[0]  == Bytecode.LAMBDA:
+            assembly[index] = (instr[0], (assemble(instr[1][0]), instr[1][1]))
     return assembly
 
 if __name__ == '__main__':
@@ -22,7 +19,7 @@ if __name__ == '__main__':
     import parser_
     import compiler
     while True:
-        src = eval(input('assembler> '))
+        src = raw_input('assembler> ')
         tokens = tokenizer.tokenize(src)
         ast = parser_.parse(tokens)
         asm = compiler.compile_(ast)

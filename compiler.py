@@ -32,16 +32,14 @@ def compile_expr(expr):
             end_label = label()
             args = expr[1]
             out = []
-            out += [(Bytecode.LAMBDA, (func_label, len(args)))]
-            out += [(Bytecode.GOTO, end_label)]
-            out += [(Bytecode.LABEL, func_label)]
+            func = []
+            out += [(Bytecode.LAMBDA, (func, len(args)))]
             for arg in args:
                 if not isinstance(arg, sym):
                     raise AssertionError('Bad syntax in lambda')
-                out += [(Bytecode.DEF, arg)]
-            out += compile_expr(expr[2])
-            out += [(Bytecode.RETURN,)]
-            out += [(Bytecode.LABEL, end_label)]
+                func += [(Bytecode.DEF, arg)]
+            func += compile_expr(expr[2])
+            func += [(Bytecode.RETURN,)]
             return out
         
         elif expr[0] == sym('if'):

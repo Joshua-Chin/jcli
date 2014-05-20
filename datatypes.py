@@ -20,7 +20,7 @@ class sym(str):
         return self is other
 
     def __repr__(self):
-        return "<sym: "+super().__repr__()+">"
+        return "<sym: "+str.__repr__(self)+">"
 
 class linked_list(tuple):
 
@@ -65,7 +65,7 @@ null = tuple.__new__(linked_list, ())
 class frame(dict):
 
     def __init__(self, outer = None):
-        super().__init__()
+        dict.__init__(self)
         self.outer = outer
 
     def __getitem__(self, key):

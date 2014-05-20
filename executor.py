@@ -39,13 +39,14 @@ def execute_bytecodes(bytecodes, builtins=None):
                         for _ in range(bytecode[1])]
                 exec_stack.append(func(*args))
             else:
-                call_stack.append((instr_ptr, env))
-                instr_ptr = func[0]
+                call_stack.append((bytecodes, instr_ptr, env))
+                instr_ptr = -1
+                bytecodes = func[0]
                 env = frame(func[1])
                 if func[2] != bytecode[1]:
                     raise AssertionError('incorrect # of args')
         elif instr == Bytecode.RETURN:
-            instr_ptr, env = call_stack.pop()
+            bytecodes, instr_ptr, env = call_stack.pop()
         elif instr == Bytecode.LABEL:
             pass
         else:
