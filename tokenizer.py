@@ -21,10 +21,10 @@ token_types = collections.OrderedDict([
     (lambda x: x=='#t', r'#t|#f'),
     (Token, r'[\(\)\',`]'),
     (None, r'(\s+|;.*)'),
-    (sym, r'[^"\'`,\.#;\s\(\)\[\]\{\}]*'),])
+    (sym, r'[^"\'`,\.#;\s\(\)\[\]\{\}]+'),])
 
 def compile_(tokens):
-    for token, regex in tokens.items():
+    for token, regex in list(tokens.items()):
         tokens[token] = re.compile(regex)
 compile_(token_types)
 
@@ -35,7 +35,7 @@ def tokenize(string, tokens=None):
     index = 0
     while index < len(string):
         head = string[index:]
-        for token, regex in tokens.items():
+        for token, regex in list(tokens.items()):
             match = regex.match(head)
             if match:
                 group = match.group()
@@ -49,4 +49,4 @@ def tokenize(string, tokens=None):
 
 if __name__ == '__main__':
     while True:
-        print(tokenize(input("tokenize> ")))
+        print((tokenize(eval(input("tokenize> ")))))

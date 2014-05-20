@@ -62,7 +62,7 @@ if __name__ == '__main__':
     from jcli_builtins import jcli_builtins
     globals_ = dict(jcli_builtins)
     while True:
-        src = input('executor> ')
+        src = raw_input('executor> ')
         tokens = tokenizer.tokenize(src)
         ast = parser_.parse(tokens)
         asm = compiler.compile_(ast)

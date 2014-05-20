@@ -7,7 +7,7 @@ class sym(str):
         if string in cls.instances:
             return cls.instances[string]
         else:
-            instance = super().__new__(cls, string)
+            instance = str.__new__(cls, string)
             instance._hash = cls.index
             cls.index += 1
             cls.instances[string] = instance

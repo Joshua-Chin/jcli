@@ -4,7 +4,10 @@ from datatypes import linked_list
 __all__ = ['parse']
 
 def parse(tokens):
-    return match_exprs(tokens)
+    try:
+        return match_exprs(tokens)
+    except Exception as e:
+        raise ParserException(e)
 
 def match_exprs(tokens):
     out = []
@@ -27,6 +30,8 @@ def match_compound(tokens):
         return
     while True:
         head = tokens[index:]
+        if not head:
+            raise AssertionError(head)
         if head[0] is Token.right_paren:
             return linked_list(out), index+1
         
@@ -40,7 +45,9 @@ def match_literal(tokens):
     if not isinstance(tokens[0], Token):
         return tokens[0], 1
 
+class ParserException(Exception): pass
+
 if __name__ == '__main__':
     import tokenizer
     while True:
-        print(parse(tokenizer.tokenize(input('parser> '))))
+        print((parse(tokenizer.tokenize(eval(input('parser> '))))))

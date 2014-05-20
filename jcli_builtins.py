@@ -1,11 +1,14 @@
 import operator
 from datatypes import sym
 
+def print_func(arg):
+    print arg
+
 jcli_builtins = {
-    sym('print'): print,
+    sym('print'): print_func,
     sym('+'): operator.add,
     sym('-'): operator.sub,
-    sym('/'): operator.truediv,
+    sym('/'): operator.div,
     sym('*'): operator.mul,
     sym('pow'): operator.pow,
     sym('abs'): operator.abs,

@@ -72,7 +72,7 @@ if __name__ == '__main__':
     import tokenizer
     import parser_
     while True:
-        src = input('compiler> ')
+        src = eval(input('compiler> '))
         tokens = tokenizer.tokenize(src)
         ast = parser_.parse(tokens)
         bytecodes = compile_(ast)

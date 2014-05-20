@@ -22,7 +22,7 @@ if __name__ == '__main__':
     import parser_
     import compiler
     while True:
-        src = input('assembler> ')
+        src = eval(input('assembler> '))
         tokens = tokenizer.tokenize(src)
         ast = parser_.parse(tokens)
         asm = compiler.compile_(ast)
