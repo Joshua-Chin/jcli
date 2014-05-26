@@ -27,6 +27,7 @@ def eval(string, bindings=None, builtins=None):
     if bindings is None:
         bindings = closure(builtins)
     else:
+    	bindings = {sym(k): bindings[k] for k in bindings.keys()}
         bindings.update(builtins)
     asts = jcli_parser.parse(string)
     return list(map(lambda ast: eval_ast(ast, bindings), asts))
