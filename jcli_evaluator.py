@@ -119,7 +119,7 @@ if __name__ == '__main__':
     eval("""
 (define recursion-test
 (lambda (x)
-(if (= x 0) 0 (recursion-test (- x 1)))))""", builtins)
+(if (= x 0) 0 (recursion-test (- x 1))))) (recursion-test 1000)""", builtins)
     while True:
-        for result in eval(input('rkt> '), builtins):
+        for result in eval(raw_input('rkt> '), builtins):
             print(result)

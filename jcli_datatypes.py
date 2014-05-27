@@ -94,7 +94,7 @@ class macro(object):
 class closure(dict):
 
     def __init__(self, outer = None):
-        super().__init__()
+        dict.__init__(self)
         self.outer = outer
 
     def __getitem__(self, key):
