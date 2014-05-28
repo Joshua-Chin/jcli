@@ -3,6 +3,11 @@ import types
 from bytecodes import Bytecode
 from datatypes import frame, function, sym
 
+try:
+    raw_input
+except NameError:
+    raw_input = input
+
 def execute_bytecodes(bytecodes, builtins=None):
     if builtins is None:
         builtins = frame()
@@ -69,5 +74,11 @@ if __name__ == '__main__':
         ast = parser_.parse(tokens)
         asm = compiler.compile_(ast)
         bc = assembler.assemble(asm)
-        for result in (execute_bytecodes(bc, globals_)):
-            print(result)
+        ex = execute_bytecodes(bc, globals_)
+        while True:
+            try:
+                next(ex)
+            except StopIteration as e:
+                for r in e.args[0]:
+                    print(r)
+                break

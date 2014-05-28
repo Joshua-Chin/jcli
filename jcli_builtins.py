@@ -1,14 +1,17 @@
+from __future__ import print_function, division
 import operator
 from datatypes import sym
 
-def print_func(arg):
-    print arg
+try:
+    div = operator.div
+except AttributeError:
+    div = operator.truediv
 
 jcli_builtins = {
-    sym('print'): print_func,
+    sym('print'): print,
     sym('+'): operator.add,
     sym('-'): operator.sub,
-    sym('/'): operator.div,
+    sym('/'): div,
     sym('*'): operator.mul,
     sym('pow'): operator.pow,
     sym('abs'): operator.abs,
