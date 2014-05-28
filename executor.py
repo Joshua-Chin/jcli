@@ -52,6 +52,7 @@ def execute_bytecodes(bytecodes, builtins=None):
         else:
             raise AssertionError('unknown bytecode: '+bytecode)
         instr_ptr += 1
+        yield
     return exec_stack
                 
 if __name__ == '__main__':
