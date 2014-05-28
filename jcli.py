@@ -19,6 +19,7 @@ def jcli_exec(srcs, iterations, callbacks=None, builtins=None):
         for index, executor in enumerate(executors):
             try:
                 next(executor)
+                out[index] = "Out of Time"
             except StopIteration:
                 pass
             except Exception as e:

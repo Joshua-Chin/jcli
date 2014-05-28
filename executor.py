@@ -3,11 +3,6 @@ import types
 from bytecodes import Bytecode
 from datatypes import frame, function, sym
 
-try:
-    raw_input
-except NameError:
-    raw_input = input
-
 def execute_bytecodes(bytecodes, builtins=None):
     if builtins is None:
         builtins = frame()
@@ -58,7 +53,7 @@ def execute_bytecodes(bytecodes, builtins=None):
             raise AssertionError('unknown bytecode: '+bytecode)
         instr_ptr += 1
         yield
-    return exec_stack
+    return
                 
 if __name__ == '__main__':
     import tokenizer
@@ -67,6 +62,10 @@ if __name__ == '__main__':
     import assembler
     import operator
     from jcli_builtins import jcli_builtins
+    try:
+        raw_input
+    except NameError:
+        raw_input = input
     globals_ = dict(jcli_builtins)
     while True:
         src = raw_input('executor> ')
