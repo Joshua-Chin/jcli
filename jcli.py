@@ -6,7 +6,7 @@ import executor
 from jcli_builtins import jcli_builtins
 from datatypes import sym
 
-def jcli_exec(srcs, iterations, callbacks=None, builtins=None):
+def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):
     if builtins is None:
         builtins = jcli_builtins
     executors = []
@@ -15,7 +15,9 @@ def jcli_exec(srcs, iterations, callbacks=None, builtins=None):
         globals_.update(gen_callbacks(index, callbacks))
         executors.append(eval_list(src))
     out = [None]*len(srcs)
-    for _ in range(iterations):
+    for step_count in range(steps*spr):
+        if not step_count % spr:
+            step()
         for index, executor in enumerate(executors):
             try:
                 next(executor)
