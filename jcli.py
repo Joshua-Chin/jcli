@@ -19,13 +19,16 @@ def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):
         if not step_count % spr:
             step()
         for index, executor in enumerate(executors):
+            if executor is None:
+                continue
             try:
                 next(executor)
                 out[index] = "Out of Time"
             except StopIteration:
-                pass
+                executor[index] = None
             except Exception as e:
                 out[index] = type(e).__name__ + ": " + e.message
+                executor[index] = None
     return out
 
 def gen_callbacks(index, callbacks):
