@@ -15,8 +15,8 @@ def tokenize_str(string):
     return string[1:-1].encode('utf8').decode('unicode-escape')
     
 token_types = collections.OrderedDict([
+    (float, r'(-|\+)?((\d+\.\d*)|(\d*\.\d+))'),
     (int, r'(-|\+)?\d+'),
-    (float, r'(-|\+)?\d+\.\d+'),
     (tokenize_str, r'"(\\"|[^"])*"'),
     (lambda x: x=='#t', r'#t|#f'),
     (Token, r'[\(\)\',`]'),
@@ -42,11 +42,19 @@ def tokenize(string, tokens=None):
                 index += len(group)
                 if token is not None:
                     out.append(token(group))
+                else:
+                    out.append(None)
                 break
         else:
             raise AssertionError(head)
-    return out
+    for a, b in zip(out, out[1:]):
+        if isinstance(a, Token) or a is None:
+            continue
+        if isinstance(b, Token) or b is None:
+            continue
+        raise AssertionError(b)
+    return filter(None, out)
 
 if __name__ == '__main__':
     while True:
-        print((tokenize(eval(input("tokenize> ")))))
+        print((tokenize(raw_input("tokenize> "))))
