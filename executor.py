@@ -13,44 +13,47 @@ def execute_bytecodes(bytecodes, builtins=None):
     env = builtins
 
     while instr_ptr < len(bytecodes):
-        bytecode = bytecodes[instr_ptr]
+        bytecode = bytecodes[instr_ptr][0]
+        line = bytecodes[instr_ptr][1]
         instr = bytecode[0]
-
-        if instr == Bytecode.POP:
-            exec_stack.pop()
-        elif instr == Bytecode.PUSH:
-            exec_stack.append(bytecode[1])
-        elif instr == Bytecode.DEF:
-            env[bytecode[1]] = exec_stack.pop()
-        elif instr == Bytecode.REF:
-            exec_stack.append(env[bytecode[1]])
-        elif instr == Bytecode.GOTO:
-            instr_ptr = bytecode[1]
-        elif instr == Bytecode.BRANCH:
-            if exec_stack.pop():
+        try:
+            if instr == Bytecode.POP:
+                exec_stack.pop()
+            elif instr == Bytecode.PUSH:
+                exec_stack.append(bytecode[1])
+            elif instr == Bytecode.DEF:
+                env[bytecode[1]] = exec_stack.pop()
+            elif instr == Bytecode.REF:
+                exec_stack.append(env[bytecode[1]])
+            elif instr == Bytecode.GOTO:
                 instr_ptr = bytecode[1]
-        elif instr == Bytecode.LAMBDA:
-            b = bytecode
-            exec_stack.append(function((b[1][0], env, b[1][1])))
-        elif instr == Bytecode.CALL:
-            func = exec_stack.pop()
-            if hasattr(func, '__call__'):
-                args = [exec_stack.pop()
-                        for _ in range(bytecode[1])]
-                exec_stack.append(func(*args))
+            elif instr == Bytecode.BRANCH:
+                if exec_stack.pop():
+                    instr_ptr = bytecode[1]
+            elif instr == Bytecode.LAMBDA:
+                b = bytecode
+                exec_stack.append(function((b[1][0], env, b[1][1])))
+            elif instr == Bytecode.CALL:
+                func = exec_stack.pop()
+                if hasattr(func, '__call__'):
+                    args = [exec_stack.pop()
+                            for _ in range(bytecode[1])]
+                    exec_stack.append(func(*args))
+                else:
+                    call_stack.append((bytecodes, instr_ptr, env))
+                    instr_ptr = -1
+                    bytecodes = func[0]
+                    env = frame(func[1])
+                    if func[2] != bytecode[1]:
+                        raise RuntimeError('incorrect # of args')
+            elif instr == Bytecode.RETURN:
+                bytecodes, instr_ptr, env = call_stack.pop()
+            elif instr == Bytecode.LABEL:
+                pass
             else:
-                call_stack.append((bytecodes, instr_ptr, env))
-                instr_ptr = -1
-                bytecodes = func[0]
-                env = frame(func[1])
-                if func[2] != bytecode[1]:
-                    raise AssertionError('incorrect # of args')
-        elif instr == Bytecode.RETURN:
-            bytecodes, instr_ptr, env = call_stack.pop()
-        elif instr == Bytecode.LABEL:
-            pass
-        else:
-            raise AssertionError('unknown bytecode: '+bytecode)
+                raise RuntimeError('unknown bytecode: '+bytecode)
+        except Exception as e:
+            raise RuntimeError("Runtime Error at line %s: "%line+e.message)
         instr_ptr += 1
         yield
     return
