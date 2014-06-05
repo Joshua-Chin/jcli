@@ -7,7 +7,7 @@ def compile_(ast):
         try:
             out += compile_expr(expr)
         except RuntimeError as e:
-            raise SyntaxError(e.message)
+            raise SyntaxError(e.args[0])
     return out
 
 class line_no(tuple):pass
@@ -18,10 +18,10 @@ def compile_expr(expr):
     elif isinstance(expr, linked_list):
         if expr[0][0] == sym('define'):
             out = []
-            if not isinstance(expr[1][0], sym) or len(expr) != 3:
+            if len(expr) != 3 or not isinstance(expr[1][0], sym):
                 raise SyntaxError('Bad syntax in define')
             out += compile_expr(expr[2])
-            out += [(Bytecode.DEF,expr[1])]
+            out += [(Bytecode.DEF,expr[1][0])]
             out += [(Bytecode.PUSH, None)]
             return out
         elif expr[0][0] == sym('begin'):
@@ -32,7 +32,7 @@ def compile_expr(expr):
             return out[:-1]
 
         elif expr[0][0] == sym('lambda'):
-            if len(expr) != 3:
+            if len(expr) != 3 or not isinstance(expr[1][0], linked_list):
                 raise SyntaxError('Bad syntax in lambda')
             func_label = label()
             end_label = label()
@@ -41,9 +41,9 @@ def compile_expr(expr):
             func = []
             out += [(Bytecode.LAMBDA, (func, len(args)))]
             for arg in args:
-                if not isinstance(arg, sym):
+                if not isinstance(arg[0], sym):
                     raise SyntaxError('Bad syntax in lambda')
-                func += [(Bytecode.DEF, arg)]
+                func += [(Bytecode.DEF, arg[0])]
             func += compile_expr(expr[2])
             func += [(Bytecode.RETURN,)]
             return out
@@ -72,19 +72,33 @@ def compile_expr(expr):
             return out
             
     elif isinstance(expr, tuple):
-        line = expr[1]
         try:
-            ops = compile_expr(expr[0])
-            return [line_no((op,line)) if not isinstance(op, line_no) else op for op in ops]
+            return syntax_lines(compile_expr(expr[0]), expr[1])
         except SyntaxError as e:
-            raise RuntimeError("Syntax error at line %s: "%line+e.message)
-
+            raise RuntimeError("Syntax error at line %s: "%expr[1]+e.args[0])
     else:
         return [(Bytecode.PUSH, expr)]
+
+def syntax_lines(expr, line):
+    out = []
+    for op in expr:
+        if isinstance(op, line_no):
+            out.append(op)
+        elif op[0] == Bytecode.LAMBDA:
+            codes = op[1][0]
+            codes = syntax_lines(codes, line)
+            out.append(line_no(((op[0], (codes, op[1][1])), line)))
+        else:
+            out.append(line_no((op,line)))
+    return out
 
 if __name__ == '__main__':
     import tokenizer
     import parser_
+    try:
+        raw_input
+    except NameError:
+        raw_input = input
     while True:
         src = raw_input('compiler> ')
         tokens = tokenizer.tokenize(src)

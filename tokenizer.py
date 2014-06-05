@@ -55,7 +55,7 @@ def tokenize(string, tokens=None):
         if b is None or isinstance(b[0], Token):
             continue
         raise SyntaxError("Syntax Error at line %s: %s..."%(b[1], a[0]))
-    return filter(None, out)
+    return list(filter(None, out))
 
 if __name__ == '__main__':
     while True:

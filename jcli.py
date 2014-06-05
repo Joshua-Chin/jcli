@@ -14,7 +14,7 @@ def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):
         globals_ = dict(builtins)
         globals_.update(gen_callbacks(index, callbacks))
         executors.append(eval_lisp(src))
-    out = [None]*len(srcs)
+    out = ["Out of Time"]*len(srcs)
     for step_count in range(steps*spr):
         if not step_count % spr:
             step()
@@ -23,11 +23,10 @@ def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):
                 continue
             try:
                 next(executor)
-                out[index] = "Out of Time"
             except StopIteration:
                 executors[index] = None
             except Exception as e:
-                out[index] = type(e).__name__ + ": " + e.message
+                out[index] = e.args[0]
                 executors[index] = None
     return out
 

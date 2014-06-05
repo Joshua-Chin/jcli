@@ -3,7 +3,7 @@ import types
 from bytecodes import Bytecode
 from datatypes import frame, function, sym
 
-def execute_bytecodes(bytecodes, builtins=None):
+def execute_bytecodes(bytecodes, builtins=None, debug=False):
     if builtins is None:
         builtins = frame()
         
@@ -24,7 +24,10 @@ def execute_bytecodes(bytecodes, builtins=None):
             elif instr == Bytecode.DEF:
                 env[bytecode[1]] = exec_stack.pop()
             elif instr == Bytecode.REF:
-                exec_stack.append(env[bytecode[1]])
+                try:
+                    exec_stack.append(env[bytecode[1]])
+                except KeyError:
+                    raise NameError("%s is not defined"%bytecode[1])
             elif instr == Bytecode.GOTO:
                 instr_ptr = bytecode[1]
             elif instr == Bytecode.BRANCH:
@@ -53,10 +56,12 @@ def execute_bytecodes(bytecodes, builtins=None):
             else:
                 raise RuntimeError('unknown bytecode: '+bytecode)
         except Exception as e:
-            raise RuntimeError("Runtime Error at line %s: "%line+e.message)
+            raise RuntimeError("Error at line %s: "%line+e.args[0])
         instr_ptr += 1
         yield
-    return
+    if debug:
+        for expr in exec_stack:
+            print(expr)
                 
 if __name__ == '__main__':
     import tokenizer
@@ -71,16 +76,17 @@ if __name__ == '__main__':
         raw_input = input
     globals_ = dict(jcli_builtins)
     while True:
-        src = raw_input('executor> ')
-        tokens = tokenizer.tokenize(src)
-        ast = parser_.parse(tokens)
-        asm = compiler.compile_(ast)
-        bc = assembler.assemble(asm)
-        ex = execute_bytecodes(bc, globals_)
-        while True:
-            try:
-                next(ex)
-            except StopIteration as e:
-                for r in e.args[0]:
-                    print(r)
-                break
+        try:
+            src = raw_input('executor> ')
+            tokens = tokenizer.tokenize(src)
+            ast = parser_.parse(tokens)
+            asm = compiler.compile_(ast)
+            bc = assembler.assemble(asm)
+            ex = execute_bytecodes(bc, globals_, debug=True)
+            while True:
+                try:
+                    next(ex)
+                except StopIteration as e:
+                    break
+        except Exception as e:
+            print(e.args[0])
