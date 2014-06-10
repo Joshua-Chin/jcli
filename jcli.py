@@ -33,7 +33,7 @@ def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):
     return out
 
 def gen_callbacks(index, callbacks):
-    return {sym(string) : gen_callback(function)
+    return {sym(string) : gen_callback(index, function)
            for string, function in callbacks.items()}
 
 def gen_callback(index, function):
