@@ -1,3 +1,5 @@
+from 
+
 import tokenizer
 import parser_
 import compiler
@@ -13,7 +15,7 @@ def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):
     for index, src in enumerate(srcs):
         globals_ = dict(builtins)
         globals_.update(gen_callbacks(index, callbacks))
-        executors.append(eval_lisp(src))
+        executors.append(eval_lisp(src, globals_))
     out = ["Out of Time"]*len(srcs)
     for step_count in range(steps*spr):
         if not step_count % spr:
@@ -31,8 +33,14 @@ def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):
     return out
 
 def gen_callbacks(index, callbacks):
-        return {sym(s):lambda *args, **kwargs: f(index, *args, **kwargs)
-                for s,f in callbacks.items()}
+    return {sym(string) : gen_callback(function)
+           for string, function in callbacks.items()}
+
+def gen_callback(index, function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        return function(index, *args, **kwargs)
+    return wrapper
 
 def eval_lisp(src, builtins=None):
     if builtins is None:
