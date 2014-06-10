@@ -1,4 +1,4 @@
-from 
+from functools import wraps
 
 import tokenizer
 import parser_
