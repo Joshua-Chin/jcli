@@ -22,7 +22,7 @@ def compile_expr(expr):
                 raise SyntaxError('Bad syntax in define')
             out += compile_expr(expr[2])
             out += [(Bytecode.DEF,expr[1][0])]
-            out += [(Bytecode.PUSH, None)]
+            out += [(Bytecode.REF,expr[1][0])]
             return out
         elif expr[0][0] == sym('begin'):
             out = []

@@ -5,7 +5,7 @@ import parser_
 import compiler
 import assembler
 import executor
-from jcli_builtins import jcli_builtins
+from builtins_ import jcli_builtins
 from datatypes import sym
 
 def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):

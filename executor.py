@@ -69,7 +69,7 @@ if __name__ == '__main__':
     import compiler
     import assembler
     import operator
-    from jcli_builtins import jcli_builtins
+    from builtins_ import jcli_builtins
     try:
         raw_input
     except NameError:
