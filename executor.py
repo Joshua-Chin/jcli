@@ -56,6 +56,8 @@ def execute_bytecodes(bytecodes, builtins=None, debug=False):
             else:
                 raise RuntimeError('unknown bytecode: '+bytecode)
         except Exception as e:
+            if debug:
+                raise e
             raise RuntimeError("Error at line %s: "%line+e.args[0])
         instr_ptr += 1
         yield

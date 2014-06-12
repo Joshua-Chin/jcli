@@ -1,3 +1,6 @@
+import StringIO
+import traceback
+
 from functools import wraps
 
 import tokenizer
@@ -8,14 +11,14 @@ import executor
 from builtins_ import jcli_builtins
 from datatypes import sym
 
-def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):
+def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None, debug=False):
     if builtins is None:
         builtins = jcli_builtins
     executors = []
     for index, src in enumerate(srcs):
         globals_ = dict(builtins)
         globals_.update(gen_callbacks(index, callbacks))
-        executors.append(eval_lisp(src, globals_))
+        executors.append(eval_lisp(src, globals_, debug))
     out = ["Out of Time"]*len(srcs)
     for step_count in range(steps*spr):
         if not step_count % spr:
@@ -27,8 +30,15 @@ def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None):
                 next(executor)
             except StopIteration:
                 executors[index] = None
+                out[index] = None
             except Exception as e:
-                out[index] = e.args[0]
+                if debug:
+                    f = StringIO.StringIO()
+                    traceback.print_tb(e, file=f)
+                    out[index] = f.getvalue()
+                    f.close()
+                else:
+                    out[index] = e.args[0]
                 executors[index] = None
     return out
 
