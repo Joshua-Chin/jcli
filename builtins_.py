@@ -15,11 +15,13 @@ def f(func):
         return all(map(lambda arg:func(*arg), zip(args, args[1:])))
     return wrapper
 
+
+
 jcli_builtins = {
-    sym('+'): lambda *args:sum(args),
-    sym('-'): lambda *args: -args[0] if len(args)==1 else args[0]-sum(args[1:]),
-    sym('/'): lambda *args: 1/args[0] if len(args)==1 else args[0]/reduce(operator.mul, args, 1),
-    sym('*'): lambda *args:reduce(operator.mul, args, 1),
+    sym('+'): wraps(operator.add)(lambda *args:sum(args)),
+    sym('-'): wraps(operator.sub)(lambda *args: -args[0] if len(args)==1 else args[0]-sum(args[1:])),
+    sym('/'): wraps(operator.div)(lambda *args: 1/args[0] if len(args)==1 else args[0]/reduce(operator.mul, args, 1)),
+    sym('*'): wraps(operator.mul)(lambda *args:reduce(operator.mul, args, 1)),
     sym('expt'): operator.pow,
     sym('abs'): operator.abs,
     sym('modulo'): operator.mod,
@@ -30,10 +32,10 @@ jcli_builtins = {
     sym('>'): f(operator.gt),
     sym('>='): f(operator.ge),
     sym('not'): operator.not_,
-    sym('or'): lambda *args:any(args),
-    sym('and'): lambda *args:all(args),
+    sym('or'): wraps(operator.or_)(lambda *args:any(args)),
+    sym('and'): wraps(operator.and_)(lambda *args:all(args)),
     sym('equal?'): f(operator.is_),
-    sym('list'): lambda *args:linked_list(args),
+    sym('list'): wraps(list)(lambda *args:linked_list(args)),
     sym('cons'): cons,
     sym('car'): car,
     sym('cdr'): cdr,

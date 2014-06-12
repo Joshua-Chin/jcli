@@ -1,4 +1,4 @@
-from datatypes import sym, linked_list
+from datatypes import sym, linked_list, cdr
 from bytecodes import *
 
 def compile_(ast):
@@ -26,7 +26,9 @@ def compile_expr(expr):
             return out
         elif expr[0][0] == sym('begin'):
             out = []
-            for expr in expr[1:]:
+            if len(expr) == 1:
+                raise SyntaxError('Bad syntax in begin')
+            for expr in cdr(expr):
                 out += compile_expr(expr)
                 out += [(Bytecode.POP,)]
             return out[:-1]
