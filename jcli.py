@@ -52,10 +52,10 @@ def gen_callback(index, function):
         return function(index, *args, **kwargs)
     return wrapper
 
-def eval_lisp(src, builtins=None):
+def eval_lisp(src, builtins=None, debug=False):
     if builtins is None:
         builtins = dict(jcli_builtins)
-    return execute_lisp(compile_lisp(src), builtins)
+    return execute_lisp(compile_lisp(src), builtins, debug)
 
 def compile_lisp(src):
     tokens = tokenizer.tokenize(src)
@@ -64,7 +64,7 @@ def compile_lisp(src):
     bytecode = assembler.assemble(asm)
     return bytecode
 
-def execute_lisp(bytecode, builtins=None):
+def execute_lisp(bytecode, builtins=None, debug=False):
     if builtins is None:
         builtins = dict(jcli_builtins)
-    return executor.execute_bytecodes(bytecode, builtins)
+    return executor.execute_bytecodes(bytecode, builtins, debug)
