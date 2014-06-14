@@ -1,5 +1,31 @@
 #JCLI DOCUMENTATION
 
+##Datatypes
+* Numbers
+  * Integers
+    * Ex `102`, `-1`
+  * Floating Points
+    * Ex `1.0`, `0.012412`
+* Strings
+  * Ex `"Hello World"`, `"Foobar"`
+* Booleans
+  * Ex `#t`, `#f`
+* Lists
+  * Ex `(list 1 2 3)`, `null`
+
+##Syntax
+
+* `(define symbol expr)` -> None
+  * assign sym to expr in the local scope
+* `(lambda (symbols ...) body)` -> function
+  * returns a function
+* `(begin exprs ...)` -> expr
+  * evaluates all exprs in order and returns the result of the last expr
+* `(if conditional then else)` -> expr
+  * returns `then` if conditional is not false, returns `else` otherwise
+* `(function args ...)` -> expr
+  * calls the function with the given arguments
+
 ##Functions
 
 ###Numerics Operators
