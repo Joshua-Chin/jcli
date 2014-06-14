@@ -26,7 +26,7 @@ jcli_builtins = {
     sym('abs'): operator.abs,
     sym('modulo'): operator.mod,
     sym('='): f(operator.eq),
-    sym('!='): f(operator.ne),
+    sym('!='): operator.ne,
     sym('<'): f(operator.lt),
     sym('<='): f(operator.le),
     sym('>'): f(operator.gt),
@@ -39,6 +39,7 @@ jcli_builtins = {
     sym('cons'): cons,
     sym('car'): car,
     sym('cdr'): cdr,
+    sym('length'): len,
     sym('null'): null,
     sym('null?'): lambda x: x is null,
     }
