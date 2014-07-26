@@ -20,7 +20,7 @@ def f(func):
 jcli_builtins = {
     sym('+'): wraps(operator.add)(lambda *args:sum(args)),
     sym('-'): wraps(operator.sub)(lambda *args: -args[0] if len(args)==1 else args[0]-sum(args[1:])),
-    sym('/'): wraps(operator.div)(lambda *args: 1/args[0] if len(args)==1 else args[0]/reduce(operator.mul, args, 1)),
+    sym('/'): wraps(operator.div)(lambda *args: 1/args[0] if len(args)==1 else args[0]/reduce(operator.mul, args[1:], 1)),
     sym('*'): wraps(operator.mul)(lambda *args:reduce(operator.mul, args, 1)),
     sym('expt'): operator.pow,
     sym('abs'): operator.abs,
