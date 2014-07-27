@@ -33,6 +33,7 @@ def tokenize(string, tokens=None):
         tokens = token_types
     out = []
     index = 0
+    line = 0
     while index < len(string):
         head = string[index:]
         for token, regex in list(tokens.items()):
@@ -40,20 +41,21 @@ def tokenize(string, tokens=None):
             if match:
                 group = match.group()
                 index += len(group)
+                line += group.count('\n')
                 if token is not None:
-                    out.append(token(group))
+                    out.append((token(group), line))
                 else:
                     out.append(None)
                 break
         else:
-            raise AssertionError(head)
+            raise SyntaxError("Syntax Error at line %s: %s..."%(line, head[:10]))
     for a, b in zip(out, out[1:]):
-        if isinstance(a, Token) or a is None:
+        if  a is None or isinstance(a[0], Token):
             continue
-        if isinstance(b, Token) or b is None:
+        if b is None or isinstance(b[0], Token):
             continue
-        raise AssertionError(b)
-    return filter(None, out)
+        raise SyntaxError("Syntax Error at line %s: %s..."%(b[1], a[0]))
+    return list(filter(None, out))
 
 if __name__ == '__main__':
     while True:
