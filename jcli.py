@@ -31,7 +31,7 @@ def jcli_exec(srcs, steps, step, spr, callbacks=None, builtins=None, includes=No
     if builtins is None:
         builtins = jcli_builtins
     if includes is None:
-        includes = open('jcli_includes.jcli').read()
+        includes = open('includes.jcli').read()
     if isinstance(includes, str):
         includes = [includes]
     for include in includes:
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         raw_input
     except NameError:
         raw_input = input
-    includes = open('jcli_includes.jcli').read()
+    includes = open('includes.jcli').read()
     if isinstance(includes, str):
         includes = [includes]
     for include in includes:
