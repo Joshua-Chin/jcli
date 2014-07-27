@@ -1,0 +1,12 @@
+(define map (lambda (function list)
+	(if (empty? list)
+		list
+		(cons (function (car list)) (map function (cdr list))))))
+	
+(define reduce (lambda (function initial list)
+	(if (empty? list)
+		initial
+		(reduce function (function initial (car list)) (cdr list)))))
+	
+(define empty? (lambda (list)
+	(= (length list) 0)))
