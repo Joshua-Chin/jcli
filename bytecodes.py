@@ -10,6 +10,7 @@ class Bytecode(enum.Enum):
     GOTO = 6
     LAMBDA = 7
     CALL = 8
+    TAIL_CALL = 10
     RETURN = 9
 
 class label(object): pass

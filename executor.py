@@ -12,7 +12,12 @@ def execute_bytecodes(bytecodes, builtins=None, debug=False):
     instr_ptr = 0
     env = builtins
 
+
+    maxs=0
+
     while instr_ptr < len(bytecodes):
+        if len(call_stack)>maxs:
+            maxs=len(call_stack)
         bytecode = bytecodes[instr_ptr][0]
         line = bytecodes[instr_ptr][1]
         instr = bytecode[0]
@@ -36,14 +41,15 @@ def execute_bytecodes(bytecodes, builtins=None, debug=False):
             elif instr == Bytecode.LAMBDA:
                 b = bytecode
                 exec_stack.append(function((b[1][0], env, b[1][1])))
-            elif instr == Bytecode.CALL:
+            elif instr == Bytecode.CALL or instr == Bytecode.TAIL_CALL:
                 func = exec_stack.pop()
                 if hasattr(func, '__call__'):
                     args = [exec_stack.pop()
                             for _ in range(bytecode[1])]
                     exec_stack.append(func(*args))
                 else:
-                    call_stack.append((bytecodes, instr_ptr, env))
+                    if instr != Bytecode.TAIL_CALL:
+                        call_stack.append((bytecodes, instr_ptr, env))
                     instr_ptr = -1
                     bytecodes = func[0]
                     env = frame(func[1])
@@ -62,6 +68,7 @@ def execute_bytecodes(bytecodes, builtins=None, debug=False):
         instr_ptr += 1
         yield
     if debug:
+        print(maxs)
         for expr in exec_stack:
             print(expr)
                 

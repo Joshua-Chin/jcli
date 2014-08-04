@@ -12,7 +12,7 @@ def compile_(ast):
 
 class line_no(tuple):pass
                 
-def compile_expr(expr):
+def compile_expr(expr, tail_call=False):
     if isinstance(expr, sym):
         return [(Bytecode.REF, expr)]
     elif isinstance(expr, linked_list):
@@ -46,7 +46,7 @@ def compile_expr(expr):
                 if not isinstance(arg[0], sym):
                     raise SyntaxError('Bad syntax in lambda')
                 func += [(Bytecode.DEF, arg[0])]
-            func += compile_expr(expr[2])
+            func += compile_expr(expr[2], True)
             func += [(Bytecode.RETURN,)]
             return out
         
@@ -58,10 +58,10 @@ def compile_expr(expr):
             out = []
             out += compile_expr(expr[1])
             out += [(Bytecode.BRANCH,then_label)]
-            out += compile_expr(expr[3])
+            out += compile_expr(expr[3], tail_call)
             out += [(Bytecode.GOTO, end_label)]
             out += [(Bytecode.LABEL, then_label)]
-            out += compile_expr(expr[2])
+            out += compile_expr(expr[2], tail_call)
             out += [(Bytecode.LABEL, end_label)]
             return out
 
@@ -70,12 +70,15 @@ def compile_expr(expr):
             out = []
             for sub_expr in reversed(expr):
                 out += compile_expr(sub_expr)
-            out += [(Bytecode.CALL, args)]
+            if tail_call:
+                out += [(Bytecode.TAIL_CALL, args)]
+            else:
+                out += [(Bytecode.CALL, args)]
             return out
             
     elif isinstance(expr, tuple):
         try:
-            return syntax_lines(compile_expr(expr[0]), expr[1])
+            return syntax_lines(compile_expr(expr[0], tail_call), expr[1])
         except SyntaxError as e:
             raise RuntimeError("Syntax error at line %s: "%expr[1]+e.args[0])
     else:
